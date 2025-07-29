@@ -182,7 +182,7 @@ function toggleDarkMode() {
 */
 // edu_zone_updated.js
 
-const geminiAPIKey = "AIzaSyAip2rhy7ipTPOKy34F1YDWY3Z_42Bru1w";
+const geminiAPIKey = "AIzaSyDmGOBxL9RZ31OCrNIUG4YhWfW_rJogWY0";
 
 // --- Auth Handling ---
 function toggleAuth(section) {
@@ -231,7 +231,7 @@ async function fetchAnswerFromGemini(question, language) {
   const shortPrompt = `Now, summarize the above answer into 3-5 short bullet points using ${language} only.`;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiAPIKey}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -242,7 +242,7 @@ async function fetchAnswerFromGemini(question, language) {
   const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
 
   const summaryResponse = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiAPIKey}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
