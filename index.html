@@ -12,8 +12,10 @@
     <div class="header">
       <h2>🎓 AI-Edu</h2>
       <label class="switch">
-        <input type="checkbox" id="themeToggle">
-        <span class="slider round"></span>
+       <div class="theme-toggle" onclick="toggleTheme(this)">
+           <span id="themeIcon">🌙</span>
+          </div>
+
       </label>
     </div>
 
@@ -23,7 +25,7 @@
       <input id="regName" placeholder="Name">
       <input id="regEmail" placeholder="Email">
       <input id="regPassword" type="password" placeholder="Password">
-      <input type="checkbox" onclick="togglePassword()"> Show Password
+      <span class="toggle-icon" onclick="togglePassword('regPassword', this)">👁️</span>
       <button onclick="registerUser()">Register</button>
       <p><a href="#" onclick="toggleAuth('login')">Already registered? Login</a></p>
     </div>
@@ -33,7 +35,7 @@
       <h3>Login</h3>
       <input id="loginEmail" placeholder="Email">
       <input id="loginPassword" type="password" placeholder="Password">
-      <input type="checkbox" onclick="togglePassword()"> Show Password
+      <span class="toggle-icon" onclick="togglePassword('regPassword', this)">👁️</span>
       <button onclick="loginUser()">Login</button>
       <p><a href="#" onclick="toggleAuth('register')">Don't have an account? Register</a></p>
     </div>
@@ -90,6 +92,16 @@
       toggle.checked = true;
     }
   });
+    function togglePassword(id, icon) {
+  const input = document.getElementById(id);
+  if (input.type === "password") {
+    input.type = "text";
+    icon.textContent = "🙈"; // eye-slash icon
+  } else {
+    input.type = "password";
+    icon.textContent = "👁️"; // eye icon
+  }
+}
   </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
