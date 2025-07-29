@@ -181,8 +181,7 @@ function toggleDarkMode() {
 }
 */
 // edu_zone_updated.js
-
-const geminiAPIKey = "AIzaSyDvZcoUD0TA2hwPAYC_Jx58iGMBBfo11lo";
+const geminiAPIKey = "AIzaSyD4jAqQ6HP6TPyaZKO7CK-R27ULyrgx0ms";
 
 // --- Auth Handling ---
 function toggleAuth(section) {
@@ -225,33 +224,52 @@ function togglePassword(id, iconElement) {
   iconElement.textContent = isPassword ? "🙈" : "👁️";
 }
 
-// --- Gemini API ---
 async function fetchAnswerFromGemini(question, language) {
   const prompt = `Answer the following question strictly in ${language}. Do not use any other language:\n${question}`;
   const shortPrompt = `Now, summarize the above answer into 3-5 short bullet points using ${language} only.`;
 
   try {
+    // First API call to get the full answer
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": geminiAPIKey,
+        },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
       }
     );
+
     if (response.status === 429) throw new Error("Too many requests. Try again later.");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorText}`);
+    }
+
     const data = await response.json();
     const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
 
+    // Second API call to get the summarized bullet points
     const summaryResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] })
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": geminiAPIKey,
+        },
+        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] }),
       }
     );
+
     if (summaryResponse.status === 429) throw new Error("Too many requests. Try again later.");
+    if (!summaryResponse.ok) {
+      const errorText = await summaryResponse.text();
+      throw new Error(`API Error: ${summaryResponse.status} - ${errorText}`);
+    }
+
     const summaryData = await summaryResponse.json();
     const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Short notes not available.";
 
