@@ -66,11 +66,16 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-/* Toggle password icon */
-.toggle-icon {
+/* Password container */
+.password-container {
   position: relative;
-  margin-top: -34px;
-  margin-left: calc(100% - 35px);
+}
+
+.password-container .toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
   cursor: pointer;
   font-size: 18px;
 }
