@@ -42,6 +42,10 @@ body.dark .toggle-icon {
   color: #fff;
 }
 
+body.dark .theme-toggle {
+  color: #ffd700;
+}
+
 /* Card Container */
 .card {
   max-width: 500px;
@@ -64,122 +68,11 @@ body.dark .toggle-icon {
   color: #007acc;
 }
 
-/* Theme Toggle */
+/* Theme Toggle Button */
 .theme-toggle {
   cursor: pointer;
   font-size: 24px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.theme-toggle:hover {
-  transform: scale(1.1);
-}
-
-/* Inputs & Textarea */
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: 0.3s ease;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #007acc;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 122, 204, 0.3);
-}
-
-/* Buttons */
-button {
-  width: 100%;
-  padding: 12px;
-  background-color: #007acc;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin: 10px 0;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #005b99;
-}
-
-/* Toggle Icon for Password */
-.password-container {
-  position: relative;
-}
-
-.toggle-icon {
-  position: absolute;
-  right: 15px;
-  top: 38px;
-  cursor: pointer;
-  font-size: 20px;
-  user-select: none;
-  color: #666;
-}
-
-/* Chat Section */
-#chatSection h4 {
-  margin-top: 20px;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-#chatSection textarea {
-  resize: none;
-}
-
-/* Input Buttons (Mic/Camera) */
-.input-options {
-  display: flex;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.input-options button {
-  flex: 1;
-  font-size: 20px;
-  padding: 8px;
-}
-
-/* About Section */
-.about {
-  font-size: 14px;
-  text-align: center;
-  margin-top: 30px;
-  color: #555;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .card {
-    padding: 20px;
-  }
-
-  .theme-toggle {
-    font-size: 20px;
-  }
-
-  h2, h3 {
-    font-size: 1.5rem;
-  }
-
-  button {
-    font-size: 0.95rem;
-  }
-
-  .toggle-icon {
-    top: 34px;
-  }
-}
+.theme-toggle:hover
