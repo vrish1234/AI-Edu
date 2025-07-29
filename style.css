@@ -58,6 +58,33 @@ button:hover {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   text-align: left;
 }
+body.dark {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.dark .card {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background-color: #2c2c2c;
+  color: #ffffff;
+  border: 1px solid #444;
+}
+
+body.dark button {
+  background-color: #333;
+  color: #fff;
+}
+
+body.dark button:hover {
+  background-color: #555;
+}
+
 
 /* ✅ Responsive Styles */
 @media only screen and (max-width: 600px) {
