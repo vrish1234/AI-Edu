@@ -1,147 +1,185 @@
-/* ===== Reset & Base ===== */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Base Styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #e0f2ff, #f0f4ff);
-  color: #2c3e50;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  background: #f5f7fa;
+  color: #333;
   padding: 20px;
-  transition: all 0.3s ease-in-out;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* ===== Headings ===== */
-h1 {
-  font-size: 2.6rem;
-  color: #004080;
-  text-align: center;
-  margin-bottom: 25px;
-  letter-spacing: 1px;
+/* Dark Mode */
+body.dark {
+  background: #1e1e1e;
+  color: #f0f0f0;
 }
 
-/* ===== Container ===== */
-.auth-container {
-  background: #ffffffcc;
-  padding: 30px 25px;
-  border-radius: 20px;
-  max-width: 420px;
-  width: 100%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
-  transition: all 0.4s ease-in-out;
+body.dark .card {
+  background: #2c2c2c;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
 }
 
-/* ===== Form Elements ===== */
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background: #444;
+  color: #f5f5f5;
+  border: 1px solid #666;
+}
+
+body.dark button {
+  background-color: #4a90e2;
+  color: white;
+}
+
+body.dark .toggle-icon {
+  color: #fff;
+}
+
+/* Card Container */
+.card {
+  max-width: 500px;
+  margin: auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  color: #007acc;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  cursor: pointer;
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Inputs & Textarea */
 input,
 textarea,
 select {
   width: 100%;
-  margin-top: 15px;
-  padding: 13px 15px;
+  padding: 12px;
+  margin: 10px 0;
   font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 10px;
-  background: #fdfdfd;
-  outline: none;
-  transition: all 0.3s;
+  border-radius: 8px;
+  transition: 0.3s ease;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  border-color: #007acc;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 122, 204, 0.3);
 }
 
-/* ===== Button ===== */
+/* Buttons */
 button {
-  margin-top: 22px;
   width: 100%;
-  padding: 13px;
-  font-size: 1rem;
-  background: linear-gradient(to right, #007bff, #00bfff);
-  color: #fff;
+  padding: 12px;
+  background-color: #007acc;
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background: linear-gradient(to right, #0056b3, #0088cc);
+  background-color: #005b99;
 }
 
-/* ===== Password Container ===== */
+/* Toggle Icon for Password */
 .password-container {
   position: relative;
 }
 
-.password-container input {
-  padding-right: 45px;
-}
-
-.password-toggle {
+.toggle-icon {
   position: absolute;
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
-  font-size: 1.3rem;
+  right: 15px;
+  top: 38px;
+  cursor: pointer;
+  font-size: 20px;
+  user-select: none;
   color: #666;
-  cursor: pointer;
-  transition: color 0.3s ease;
 }
 
-.password-toggle:hover {
-  color: #000;
+/* Chat Section */
+#chatSection h4 {
+  margin-top: 20px;
+  font-size: 1.1rem;
+  color: #333;
 }
 
-/* ===== Theme Toggle Icon ===== */
-.theme-toggle-container {
-  margin-top: 25px;
+#chatSection textarea {
+  resize: none;
+}
+
+/* Input Buttons (Mic/Camera) */
+.input-options {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
 }
 
-#themeToggle {
-  display: none;
+.input-options button {
+  flex: 1;
+  font-size: 20px;
+  padding: 8px;
 }
 
-.theme-icon {
-  font-size: 26px;
+/* About Section */
+.about {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 30px;
   color: #555;
-  cursor: pointer;
-  transition: transform 0.4s ease, color 0.3s ease;
 }
 
-#themeToggle:checked + .theme-icon {
-  color: #f39c12;
-  transform: rotate(180deg);
-}
-
-/* ===== Eye Icon (for show password) ===== */
-.password-toggle .icon-eye::before {
-  content: '\1F441'; /* Unicode for eye */
-}
-
-/* ===== Responsive ===== */
+/* Responsive */
 @media (max-width: 480px) {
-  h1 {
-    font-size: 2rem;
+  .card {
+    padding: 20px;
   }
 
-  .auth-container {
-    padding: 25px 18px;
+  .theme-toggle {
+    font-size: 20px;
+  }
+
+  h2, h3 {
+    font-size: 1.5rem;
   }
 
   button {
     font-size: 0.95rem;
+  }
+
+  .toggle-icon {
+    top: 34px;
   }
 }
