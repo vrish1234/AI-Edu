@@ -102,6 +102,22 @@
     icon.textContent = "👁️"; // eye icon
   }
 }
+    <script>
+  function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById("themeIcon");
+
+    body.classList.toggle("dark-mode");
+
+    // Change icon based on mode
+    if (body.classList.contains("dark-mode")) {
+      icon.textContent = "☀️"; // light mode icon
+    } else {
+      icon.textContent = "🌙"; // dark mode icon
+    }
+  }
+</script>
+
   </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
