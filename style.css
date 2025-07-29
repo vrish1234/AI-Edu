@@ -1,40 +1,44 @@
+/* Base Styles */
 body {
   font-family: Arial, sans-serif;
   background: #f4f4f4;
   padding: 20px;
   text-align: center;
-  margin: 0;
+  transition: background 0.3s, color 0.3s;
 }
 
 h1 {
   color: #333;
   font-size: 2.5rem;
-  margin-bottom: 20px;
 }
 
+/* Auth container */
 .auth-container {
-  width: 100%;
   max-width: 400px;
   margin: auto;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  box-sizing: border-box;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s, color 0.3s;
 }
 
+/* Inputs */
 input, textarea, select {
-  width: 100%;
-  margin: 10px 0;
-  padding: 12px;
+  width: 90%;
+  margin: 10px auto;
+  padding: 10px;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
   box-sizing: border-box;
+  display: block;
+  transition: background 0.3s, color 0.3s;
 }
 
+/* Buttons */
 button {
-  padding: 12px 20px;
+  padding: 10px 20px;
   font-size: 1rem;
   margin-top: 10px;
   background: #0066cc;
@@ -42,28 +46,30 @@ button {
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
+  transition: background 0.3s;
 }
 
 button:hover {
   background-color: #004d99;
 }
 
+/* Response Output */
 #responseOutput {
   margin-top: 20px;
   background: #fff;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  text-align: left;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, color 0.3s;
 }
+
+/* Dark Mode */
 body.dark {
   background-color: #121212;
   color: #ffffff;
 }
 
-body.dark .card {
+body.dark .auth-container {
   background-color: #1e1e1e;
   color: #ffffff;
 }
@@ -85,19 +91,27 @@ body.dark button:hover {
   background-color: #555;
 }
 
+body.dark #responseOutput {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
 
-/* ✅ Responsive Styles */
-@media only screen and (max-width: 600px) {
+/* Responsive Design */
+@media (max-width: 600px) {
   h1 {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .auth-container {
+    width: 90%;
     padding: 15px;
   }
 
-  input, textarea, select, button {
-    font-size: 1rem;
-    padding: 10px;
+  input, textarea, select {
+    font-size: 0.95rem;
+  }
+
+  button {
+    width: 100%;
   }
 }
