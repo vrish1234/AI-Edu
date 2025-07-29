@@ -6,6 +6,111 @@
   <title> AI-Edu</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #e0eafc, #cfdef3);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 10px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode {
+      background: #121212;
+      color: #f0f0f0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #004080;
+    }
+
+    .dark-mode h1 {
+      color: #fdd835;
+    }
+
+    .auth-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 25px 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      backdrop-filter: blur(8px);
+    }
+
+    .dark-mode .auth-container {
+      background: rgba(40, 40, 40, 0.95);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    input {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .dark-mode input {
+      background: #1e1e1e;
+      border: 1px solid #555;
+      color: #f0f0f0;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 40px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      background: #004080;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #003060;
+    }
+  </style>
 </head>
 <body>
   <div class="card">
