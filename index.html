@@ -92,32 +92,11 @@
       toggle.checked = true;
     }
   });
-    function toggleTheme() {
-      const body = document.body;
-      const icon = document.getElementById("themeIcon");
-
-      body.classList.toggle("dark-mode");
-
-      icon.textContent = body.classList.contains("dark-mode") ? "☀️" : "🌙";
-    }
-
-    function togglePassword() {
-      const passwordInput = document.getElementById("password");
-      const icon = document.querySelector(".toggle-password");
-
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        icon.textContent = "👁️‍🗨️"; // eye with slash
-      } else {
-        passwordInput.type = "password";
-        icon.textContent = "👁️";
-      }
-    }
+  
 
   </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
   <script src="main.js"></script>
 </body>
