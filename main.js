@@ -219,6 +219,7 @@ function loginUser() {
 // --- Password Toggle ---
 function togglePassword(id, iconElement) {
   const input = document.getElementById(id);
+  if (!input) return;
   const isPassword = input.type === "password";
   input.type = isPassword ? "text" : "password";
   iconElement.textContent = isPassword ? "🙈" : "👁️";
@@ -364,12 +365,12 @@ function captureImage() {
 async function extractTextFromImage(base64Image) {
   try {
     const { createWorker } = Tesseract;
-    const worker = await createWorker();
-    await worker.load();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const { data: { text } } = await worker.recognize(base64Image);
-    await worker.terminate();
+    const worker = createWorker();
+    await (await worker).load();
+    await (await worker).loadLanguage('eng');
+    await (await worker).initialize('eng');
+    const { data: { text } } = await (await worker).recognize(base64Image);
+    await (await worker).terminate();
     return text;
   } catch (error) {
     console.error("OCR Error:", error);
@@ -381,10 +382,8 @@ async function extractTextFromImage(base64Image) {
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
   const themeIcon = document.getElementById("themeIcon");
-  if (document.body.classList.contains("dark-mode")) {
-    themeIcon.textContent = "🌙";
-  } else {
-    themeIcon.textContent = "🌞";
+  if (themeIcon) {
+    themeIcon.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
   }
 }
 
@@ -393,8 +392,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("themeToggle");
   if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark-mode");
-    themeToggle.checked = true;
-    document.getElementById("themeIcon").textContent = "🌙";
+    if (themeToggle) themeToggle.checked = true;
+    const themeIcon = document.getElementById("themeIcon");
+    if (themeIcon) themeIcon.textContent = "🌙";
   }
 
   if (themeToggle) {
