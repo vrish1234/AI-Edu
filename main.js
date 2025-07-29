@@ -365,12 +365,12 @@ function captureImage() {
 async function extractTextFromImage(base64Image) {
   try {
     const { createWorker } = Tesseract;
-    const worker = createWorker();
-    await (await worker).load();
-    await (await worker).loadLanguage('eng');
-    await (await worker).initialize('eng');
-    const { data: { text } } = await (await worker).recognize(base64Image);
-    await (await worker).terminate();
+    const worker = await createWorker();
+    await worker.load();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    const { data: { text } } = await worker.recognize(base64Image);
+    await worker.terminate();
     return text;
   } catch (error) {
     console.error("OCR Error:", error);
