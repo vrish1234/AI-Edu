@@ -230,28 +230,35 @@ async function fetchAnswerFromGemini(question, language) {
   const prompt = `Answer the following question strictly in ${language}. Do not use any other language:\n${question}`;
   const shortPrompt = `Now, summarize the above answer into 3-5 short bullet points using ${language} only.`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    }
-  );
-  const data = await response.json();
-  const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      }
+    );
+    if (response.status === 429) throw new Error("Too many requests. Try again later.");
+    const data = await response.json();
+    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
 
-  const summaryResponse = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] })
-    }
-  );
-  const summaryData = await summaryResponse.json();
-  const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Short notes not available.";
-  return { answer, shortNotes };
+    const summaryResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${geminiAPIKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] })
+      }
+    );
+    if (summaryResponse.status === 429) throw new Error("Too many requests. Try again later.");
+    const summaryData = await summaryResponse.json();
+    const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Short notes not available.";
+
+    return { answer, shortNotes };
+  } catch (err) {
+    throw err;
+  }
 }
 
 function getLangCode(lang) {
@@ -288,7 +295,7 @@ async function getAnswer() {
     showTextAsVideo(answer);
   } catch (error) {
     responseText.innerText = "Error fetching answer.";
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error:", error.message);
   }
 }
 
@@ -390,14 +397,15 @@ function toggleDarkMode() {
 // --- Theme Toggle on Load ---
 document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("themeToggle");
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark-mode");
-    if (themeToggle) themeToggle.checked = true;
-    const themeIcon = document.getElementById("themeIcon");
-    if (themeIcon) themeIcon.textContent = "🌙";
-  }
+  const themeIcon = document.getElementById("themeIcon");
 
   if (themeToggle) {
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+      if (themeIcon) themeIcon.textContent = "🌙";
+    }
+
     themeToggle.addEventListener("change", () => {
       toggleDarkMode();
       localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
