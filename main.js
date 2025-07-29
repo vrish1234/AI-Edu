@@ -216,6 +216,15 @@ function loginUser() {
   }
 }
 
+// --- Password Toggle ---
+function togglePasswordVisibility(id, iconId) {
+  const input = document.getElementById(id);
+  const icon = document.getElementById(iconId);
+  const isPassword = input.type === "password";
+  input.type = isPassword ? "text" : "password";
+  icon.textContent = isPassword ? "🙈" : "👁️";
+}
+
 // --- Gemini API ---
 async function fetchAnswerFromGemini(question, language) {
   const prompt = `Answer the following question strictly in ${language}. Do not use any other language:\n${question}`;
@@ -271,7 +280,7 @@ async function getAnswer() {
     responseText.innerText = answer;
     shortNotesText.innerText = shortNotes;
 
-    speechSynthesis.cancel(); // 🛑 Stop old speech
+    speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(answer);
     utter.lang = getLangCode(language);
     speechSynthesis.speak(utter);
@@ -283,7 +292,7 @@ async function getAnswer() {
   }
 }
 
-// --- Video Style Display ---
+// --- Video Display ---
 function showTextAsVideo(text) {
   const canvas = document.getElementById("videoCanvas");
   if (!canvas) return;
@@ -352,12 +361,12 @@ function captureImage() {
   input.click();
 }
 
-// --- OCR Integration (Tesseract.js v5) ---
+// --- OCR ---
 async function extractTextFromImage(base64Image) {
   try {
     const worker = Tesseract.createWorker();
     await worker.load();
-    await worker.loadLanguage('eng'); // change to 'hin' for Hindi OCR
+    await worker.loadLanguage('eng');
     await worker.initialize('eng');
     const { data: { text } } = await worker.recognize(base64Image);
     await worker.terminate();
@@ -368,7 +377,28 @@ async function extractTextFromImage(base64Image) {
   }
 }
 
-// --- Dark Mode ---
+// --- Dark Mode Toggle ---
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
+  const themeIcon = document.getElementById("themeIcon");
+  if (document.body.classList.contains("dark-mode")) {
+    themeIcon.textContent = "🌙";
+  } else {
+    themeIcon.textContent = "🌞";
+  }
 }
+
+// --- Theme Toggle on Load ---
+document.addEventListener("DOMContentLoaded", () => {
+  const themeToggle = document.getElementById("themeToggle");
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.checked = true;
+    document.getElementById("themeIcon").textContent = "🌙";
+  }
+
+  themeToggle.addEventListener("change", () => {
+    toggleDarkMode();
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+  });
+});
