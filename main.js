@@ -182,7 +182,7 @@ function toggleDarkMode() {
 */
 // edu_zone_updated.js
 
-const geminiAPIKey = "AIzaSyACYcGjDnfX3X4QQisj1EoMGDs9JNfUXIE";
+const geminiAPIKey = "AIzaSyCEyq4Awmqc-R1-VPIYgoQWdEupjeY6GvY";
 
 // --- Auth Handling ---
 function toggleAuth(section) {
