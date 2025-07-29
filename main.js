@@ -217,12 +217,11 @@ function loginUser() {
 }
 
 // --- Password Toggle ---
-function togglePasswordVisibility(id, iconId) {
+function togglePassword(id, iconElement) {
   const input = document.getElementById(id);
-  const icon = document.getElementById(iconId);
   const isPassword = input.type === "password";
   input.type = isPassword ? "text" : "password";
-  icon.textContent = isPassword ? "🙈" : "👁️";
+  iconElement.textContent = isPassword ? "🙈" : "👁️";
 }
 
 // --- Gemini API ---
@@ -364,7 +363,8 @@ function captureImage() {
 // --- OCR ---
 async function extractTextFromImage(base64Image) {
   try {
-    const worker = Tesseract.createWorker();
+    const { createWorker } = Tesseract;
+    const worker = await createWorker();
     await worker.load();
     await worker.loadLanguage('eng');
     await worker.initialize('eng');
@@ -397,8 +397,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("themeIcon").textContent = "🌙";
   }
 
-  themeToggle.addEventListener("change", () => {
-    toggleDarkMode();
-    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
-  });
+  if (themeToggle) {
+    themeToggle.addEventListener("change", () => {
+      toggleDarkMode();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    });
+  }
 });
