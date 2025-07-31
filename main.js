@@ -223,6 +223,39 @@ function togglePassword(id, iconElement) {
   input.type = isPassword ? "text" : "password";
   iconElement.textContent = isPassword ? "🙈" : "👁️";
 }
+function logoutUser() {
+  localStorage.removeItem('loggedInUser');
+  toggleAuth('login');
+}
+
+// --- Chat Section ---
+function showChatSection() {
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('chatSection').style.display = 'block';
+  document.getElementById('logoutSection').style.display = 'block';
+  showUserProfile();
+  showUserHistory();
+}
+
+function showUserProfile() {
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) return;
+  let profile = document.createElement('div');
+  profile.id = 'profileSection';
+  profile.innerHTML = `<hr><p><strong>User:</strong> ${user.name} (${user.email})</p>`;
+  document.querySelector('.card')?.appendChild(profile);
+}
+
+function showUserHistory() {
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) return;
+  const history = JSON.parse(localStorage.getItem('history_' + user.email)) || [];
+  let historyDiv = document.createElement('div');
+  historyDiv.id = 'historySection';
+  historyDiv.innerHTML = `<hr><h4>History</h4>${history.length ? '<ul>' + history.map(h => `<li>${h.q}</li>`).join('') + '</ul>' : '<p>No history found.</p>'}`;
+  document.querySelector('.card')?.appendChild(historyDiv);
+}
 
 async function fetchAnswerFromGemini(question, language) {
   const prompt = `Answer the following question strictly in ${language}. Do not use any other language:\n${question}`;
