@@ -483,5 +483,12 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     toggleAuth('login');
   }
+  // User session
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (user) {
+    showChatSection();
+  } else {
+    toggleAuth('login');
+  }
 });
 
