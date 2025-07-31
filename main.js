@@ -283,14 +283,18 @@ function getLangCode(lang) {
   const codes = {
     English: 'en-US',
     Hindi: 'hi-IN',
+    Magahi: 'hi-IN',
+    Maithili: 'hi-IN',
     Bhojpuri: 'hi-IN',
     Tamil: 'ta-IN',
     Telugu: 'te-IN',
-    Bengali: 'bn-IN'
+    Bengali: 'bn-IN',
+    Rajasthani: 'hi-IN',
+    Gujarati: 'gu-IN',
+    Punjabi: 'pa-IN',
   };
   return codes[lang] || 'en-US';
 }
-
 async function getAnswer() {
   const question = document.getElementById('question').value;
   const language = document.getElementById('language').value;
