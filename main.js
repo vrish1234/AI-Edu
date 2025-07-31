@@ -194,8 +194,10 @@ function registerUser() {
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value.trim();
   if (!name || !email || !password) return alert("Fill all fields.");
+
   let users = JSON.parse(localStorage.getItem('users')) || [];
   if (users.find(u => u.email === email)) return alert("User already exists.");
+
   users.push({ name, email, password });
   localStorage.setItem('users', JSON.stringify(users));
   alert("Registered! Please login.");
@@ -205,8 +207,10 @@ function registerUser() {
 function loginUser() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value.trim();
-  let users = JSON.parse(localStorage.getItem('users')) || [];
+
+  const users = JSON.parse(localStorage.getItem('users')) || [];
   const user = users.find(u => u.email === email && u.password === password);
+
   if (user) {
     localStorage.setItem('loggedInUser', JSON.stringify(user));
     showChatSection();
@@ -217,9 +221,24 @@ function loginUser() {
 
 function logoutUser() {
   localStorage.removeItem('loggedInUser');
-  toggleAuth('login');
   document.getElementById('chatSection').style.display = 'none';
-  document.getElementById('logoutSection').style.display = 'none';
+  document.getElementById('subscriptionsSection').style.display = 'none';
+  document.getElementById('profileSection').style.display = 'none';
+  document.getElementById('userInfo').style.display = 'none';
+  toggleAuth('login');
+}
+
+// --- Show Chat + Profile Info ---
+function showChatSection() {
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) return;
+
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('chatSection').style.display = 'block';
+  document.getElementById('profileSection').style.display = 'inline-block';
+  document.getElementById('userInfo').style.display = 'block';
+  document.getElementById('loggedInName').innerText = user.name;
 }
 
 // --- Password Toggle ---
@@ -231,6 +250,19 @@ function togglePassword(id, iconElement) {
   iconElement.textContent = isPassword ? "🙈" : "👁️";
 }
 
+// --- Dropdown ---
+function toggleDropdown() {
+  const dropdown = document.getElementById('profileDropdown');
+  dropdown.classList.toggle('show');
+}
+window.addEventListener('click', function (e) {
+  if (!e.target.matches('.profile-icon')) {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown && dropdown.classList.contains('show')) {
+      dropdown.classList.remove('show');
+    }
+  }
+});
 // --- Chat Section ---
 function showChatSection() {
   document.getElementById('registerSection').style.display = 'none';
@@ -244,29 +276,77 @@ function showChatSection() {
 function showUserProfile() {
   const user = JSON.parse(localStorage.getItem('loggedInUser'));
   if (!user) return;
-  let profile = document.getElementById('profileSection');
-  if (!profile) {
-    profile = document.createElement('div');
-    profile.id = 'profileSection';
-    document.querySelector('.card')?.appendChild(profile);
-  }
+  let profile = document.createElement('div');
+  profile.id = 'profileSection';
   profile.innerHTML = `<hr><p><strong>User:</strong> ${user.name} (${user.email})</p>`;
+  document.querySelector('.card')?.appendChild(profile);
 }
 
 function showUserHistory() {
   const user = JSON.parse(localStorage.getItem('loggedInUser'));
   if (!user) return;
   const history = JSON.parse(localStorage.getItem('history_' + user.email)) || [];
-  let historyDiv = document.getElementById('historySection');
-  if (!historyDiv) {
-    historyDiv = document.createElement('div');
-    historyDiv.id = 'historySection';
-    document.querySelector('.card')?.appendChild(historyDiv);
-  }
+  let historyDiv = document.createElement('div');
+  historyDiv.id = 'historySection';
   historyDiv.innerHTML = `<hr><h4>History</h4>${history.length ? '<ul>' + history.map(h => `<li>${h.q}</li>`).join('') + '</ul>' : '<p>No history found.</p>'}`;
+  document.querySelector('.card')?.appendChild(historyDiv);
 }
 
-// --- Language Code Map ---
+async function fetchAnswerFromGemini(question, language) {
+  const prompt = `Answer the following question strictly in ${language}. Do not use any other language:\n${question}`;
+  const shortPrompt = `Now, summarize the above answer into 3-5 short bullet points using ${language} only.`;
+
+  try {
+    // First API call to get the full answer
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": geminiAPIKey,
+        },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      }
+    );
+
+    if (response.status === 429) throw new Error("Too many requests. Try again later.");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
+
+    // Second API call to get the summarized bullet points
+    const summaryResponse = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": geminiAPIKey,
+        },
+        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] }),
+      }
+    );
+
+    if (summaryResponse.status === 429) throw new Error("Too many requests. Try again later.");
+    if (!summaryResponse.ok) {
+      const errorText = await summaryResponse.text();
+      throw new Error(`API Error: ${summaryResponse.status} - ${errorText}`);
+    }
+
+    const summaryData = await summaryResponse.json();
+    const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Short notes not available.";
+
+    return { answer, shortNotes };
+  } catch (err) {
+    throw err;
+  }
+}
+
 function getLangCode(lang) {
   const codes = {
     English: 'en-US',
@@ -284,51 +364,6 @@ function getLangCode(lang) {
   return codes[lang] || 'en-US';
 }
 
-// --- AI Response ---
-async function fetchAnswerFromGemini(question, language) {
-  const prompt = `Answer the following question strictly in ${language}:\n${question}`;
-  const shortPrompt = `Summarize the above answer in 3-5 short bullet points using ${language} only.`;
-
-  try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-goog-api-key": geminiAPIKey,
-        },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-      }
-    );
-
-    if (response.status === 429) throw new Error("Too many requests. Try again later.");
-    if (!response.ok) throw new Error(await response.text());
-
-    const data = await response.json();
-    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
-
-    const summaryResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-goog-api-key": geminiAPIKey,
-        },
-        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] }),
-      }
-    );
-
-    const summaryData = await summaryResponse.json();
-    const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Summary not available.";
-
-    return { answer, shortNotes };
-  } catch (err) {
-    throw err;
-  }
-}
-
 async function getAnswer() {
   const question = document.getElementById('question').value;
   const language = document.getElementById('language').value;
@@ -343,10 +378,21 @@ async function getAnswer() {
     responseText.innerText = answer;
     shortNotesText.innerText = shortNotes;
 
+    speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(answer);
     utter.lang = getLangCode(language);
-    speechSynthesis.cancel();
     speechSynthesis.speak(utter);
+    // Display history
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (user) {
+      const key = 'history_' + user.email;
+      const history = JSON.parse(localStorage.getItem(key)) || [];
+      history.push({ q: question, a: answer });
+      localStorage.setItem(key, JSON.stringify(history));
+
+      const li = document.createElement('li');
+      li.textContent = question;
+      document.getElementById('historyList').appendChild(li);
 
     showTextAsVideo(answer);
   } catch (error) {
@@ -355,7 +401,7 @@ async function getAnswer() {
   }
 }
 
-// --- Show Text in Canvas ---
+// --- Video Display ---
 function showTextAsVideo(text) {
   const canvas = document.getElementById("videoCanvas");
   if (!canvas) return;
@@ -448,18 +494,31 @@ function toggleDarkMode() {
   if (themeIcon) {
     themeIcon.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
   }
-  localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
 }
 
-// --- INIT ---
+// --- Theme Toggle on Load ---
+document.addEventListener("DOMContentLoaded", () => {
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
+
+  if (themeToggle) {
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+      if (themeIcon) themeIcon.textContent = "🌙";
+    }
+
+    themeToggle.addEventListener("change", () => {
+      toggleDarkMode();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+      
+// --- On Load ---
 document.addEventListener("DOMContentLoaded", () => {
   // Theme
   if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark-mode");
+    document.body.classList.add("dark");
     const themeIcon = document.getElementById("themeIcon");
-    if (themeIcon) themeIcon.textContent = "🌙";
-    const themeToggle = document.getElementById("themeToggle");
-    if (themeToggle) themeToggle.checked = true;
+    if (themeIcon) themeIcon.textContent = "☀️";
   }
 
   const themeToggle = document.getElementById("themeToggle");
@@ -473,5 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showChatSection();
   } else {
     toggleAuth('login');
+  }
+    });
   }
 });
