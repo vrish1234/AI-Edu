@@ -465,24 +465,21 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggle.addEventListener("change", () => {
       toggleDarkMode();
       localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
-    });
-  }
-});
-// --- On Page Load ---
+      
+// --- On Load ---
 document.addEventListener("DOMContentLoaded", () => {
+  // Theme
   if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark");
-    document.getElementById('themeIcon').textContent = '☀️';
+    const themeIcon = document.getElementById("themeIcon");
+    if (themeIcon) themeIcon.textContent = "☀️";
   }
 
-
-
-  const user = JSON.parse(localStorage.getItem('loggedInUser'));
-  if (user) {
-    showChatSection();
-  } else {
-    toggleAuth('login');
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("change", toggleDarkMode);
   }
+
   // User session
   const user = JSON.parse(localStorage.getItem('loggedInUser'));
   if (user) {
@@ -490,5 +487,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     toggleAuth('login');
   }
+    });
+  }
 });
-
