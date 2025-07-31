@@ -194,8 +194,10 @@ function registerUser() {
   const email = document.getElementById('regEmail').value.trim();
   const password = document.getElementById('regPassword').value.trim();
   if (!name || !email || !password) return alert("Fill all fields.");
+
   let users = JSON.parse(localStorage.getItem('users')) || [];
   if (users.find(u => u.email === email)) return alert("User already exists.");
+
   users.push({ name, email, password });
   localStorage.setItem('users', JSON.stringify(users));
   alert("Registered! Please login.");
@@ -205,14 +207,38 @@ function registerUser() {
 function loginUser() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value.trim();
-  let users = JSON.parse(localStorage.getItem('users')) || [];
+
+  const users = JSON.parse(localStorage.getItem('users')) || [];
   const user = users.find(u => u.email === email && u.password === password);
+
   if (user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('chatSection').style.display = 'block';
+    localStorage.setItem('loggedInUser', JSON.stringify(user));
+    showChatSection();
   } else {
     alert("Wrong email or password.");
   }
+}
+
+function logoutUser() {
+  localStorage.removeItem('loggedInUser');
+  document.getElementById('chatSection').style.display = 'none';
+  document.getElementById('subscriptionsSection').style.display = 'none';
+  document.getElementById('profileSection').style.display = 'none';
+  document.getElementById('userInfo').style.display = 'none';
+  toggleAuth('login');
+}
+
+// --- Show Chat + Profile Info ---
+function showChatSection() {
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) return;
+
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('registerSection').style.display = 'none';
+  document.getElementById('chatSection').style.display = 'block';
+  document.getElementById('profileSection').style.display = 'inline-block';
+  document.getElementById('userInfo').style.display = 'block';
+  document.getElementById('loggedInName').innerText = user.name;
 }
 
 // --- Password Toggle ---
@@ -223,11 +249,20 @@ function togglePassword(id, iconElement) {
   input.type = isPassword ? "text" : "password";
   iconElement.textContent = isPassword ? "🙈" : "👁️";
 }
-function logoutUser() {
-  localStorage.removeItem('loggedInUser');
-  toggleAuth('login');
-}
 
+// --- Dropdown ---
+function toggleDropdown() {
+  const dropdown = document.getElementById('profileDropdown');
+  dropdown.classList.toggle('show');
+}
+window.addEventListener('click', function (e) {
+  if (!e.target.matches('.profile-icon')) {
+    const dropdown = document.getElementById('profileDropdown');
+    if (dropdown && dropdown.classList.contains('show')) {
+      dropdown.classList.remove('show');
+    }
+  }
+});
 // --- Chat Section ---
 function showChatSection() {
   document.getElementById('registerSection').style.display = 'none';
@@ -347,6 +382,17 @@ async function getAnswer() {
     const utter = new SpeechSynthesisUtterance(answer);
     utter.lang = getLangCode(language);
     speechSynthesis.speak(utter);
+    // Display history
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (user) {
+      const key = 'history_' + user.email;
+      const history = JSON.parse(localStorage.getItem(key)) || [];
+      history.push({ q: question, a: answer });
+      localStorage.setItem(key, JSON.stringify(history));
+
+      const li = document.createElement('li');
+      li.textContent = question;
+      document.getElementById('historyList').appendChild(li);
 
     showTextAsVideo(answer);
   } catch (error) {
