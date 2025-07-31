@@ -283,6 +283,8 @@ function getLangCode(lang) {
   const codes = {
     English: 'en-US',
     Hindi: 'hi-IN',
+     Magahi: 'hi-IN',
+    Maithili: 'hi-IN',
     Bhojpuri: 'hi-IN',
     Tamil: 'ta-IN',
     Telugu: 'te-IN',
