@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI-Edu</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
 </head>
 <body>
   <div class="card">
@@ -14,6 +14,21 @@
       <div class="theme-toggle" onclick="toggleTheme()">
         <span id="themeIcon">🌙</span>
       </div>
+
+      <!-- Profile Dropdown -->
+      <div id="profileSection" class="profile-container" style="display:none;">
+        <span class="profile-icon" onclick="toggleDropdown()">👤</span>
+        <div id="profileDropdown" class="dropdown">
+          <a href="#" onclick="showHistory()">📜 History</a>
+          <a href="#" onclick="showSubscriptions()">💼 Subscriptions</a>
+          <a href="#" onclick="logoutUser()">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info -->
+    <div id="userInfo" style="display:none; text-align:right;">
+      <p>👤 Logged in as: <strong id="loggedInName"></strong></p>
     </div>
 
     <!-- Register Section -->
@@ -50,16 +65,22 @@
         <button onclick="startVoiceInput()" title="Speak your question 🎤">🎤</button>
         <button onclick="captureImage()" title="Upload photo of question 📷">📷</button>
       </div>
+
+      <!-- Updated Languages -->
       <select id="language">
         <option>English</option>
         <option>Hindi</option>
         <option>Bhojpuri</option>
-         <option>Magahi</option>
-        <option>Maithili</option>
         <option>Tamil</option>
         <option>Telugu</option>
         <option>Bengali</option>
+        <option>Magahi</option>
+        <option>Maithili</option>
+        <option>Punjabi</option>
+        <option>Rajasthani</option>
+        <option>Gujarati</option>
       </select>
+
       <button onclick="getAnswer()">Get Answer</button>
 
       <h4>Answer:</h4>
@@ -67,14 +88,26 @@
 
       <h4>Short Notes:</h4>
       <p id="shortNotesText"></p>
+
+      <!-- History Section -->
+      <div id="historySection">
+        <h4>Previous Questions:</h4>
+        <ul id="historyList"></ul>
+      </div>
+    </div>
+
+    <!-- Subscriptions Section -->
+    <div id="subscriptionsSection" style="display:none; text-align:center; margin-top: 20px;">
+      <h4>📦 Subscriptions</h4>
+      <p>You currently have no active subscriptions.</p>
     </div>
 
     <!-- About Section -->
     <div style="margin-top: 30px; font-size: 14px; text-align: center;">
       <hr style="margin: 20px 0;">
       <h3>About Edu Zone</h3>
-      <p>Edu Zone is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages like Hindi, English, Bhojpuri, Tamil, Telugu, and Bengali.</p>
-      <p>This project is developed with by <strong>Vrishketu Ray</strong>.<br>Email: <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
+      <p> AI-Edu is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
+      <p>This project is developed by <strong>Vrishketu Ray</strong>.<br>Email: <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
     </div>
   </div>
 
@@ -82,6 +115,8 @@
 
   <!-- JavaScript -->
   <script>
+    let userHistory = [];
+
     function toggleTheme() {
       const isDark = document.body.classList.toggle('dark');
       const icon = document.getElementById('themeIcon');
@@ -91,19 +126,81 @@
 
     function togglePassword(inputId, icon) {
       const input = document.getElementById(inputId);
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.textContent = '🙈';
-      } else {
-        input.type = 'password';
-        icon.textContent = '👁️';
-      }
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.textContent = input.type === 'text' ? '🙈' : '👁️';
     }
 
     function toggleAuth(section) {
       document.getElementById('registerSection').style.display = section === 'register' ? 'block' : 'none';
       document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
     }
+
+    function registerUser() {
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      localStorage.setItem('user', JSON.stringify({ name, email }));
+      alert('Registered successfully. Please login.');
+      toggleAuth('login');
+    }
+
+    function loginUser() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.email === email) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('chatSection').style.display = 'block';
+        document.getElementById('profileSection').style.display = 'inline-block';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('loggedInName').innerText = user.name;
+      } else {
+        alert('Invalid credentials!');
+      }
+    }
+
+    function logoutUser() {
+      document.getElementById('chatSection').style.display = 'none';
+      document.getElementById('subscriptionsSection').style.display = 'none';
+      document.getElementById('profileSection').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'none';
+      toggleAuth('login');
+    }
+
+    function getAnswer() {
+      const question = document.getElementById('question').value;
+      document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
+      document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
+
+      userHistory.push(question);
+      const li = document.createElement('li');
+      li.textContent = question;
+      document.getElementById('historyList').appendChild(li);
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    function showSubscriptions() {
+      document.getElementById('subscriptionsSection').style.display = 'block';
+      document.getElementById('chatSection').style.display = 'none';
+    }
+
+    function showHistory() {
+      document.getElementById('chatSection').style.display = 'block';
+      document.getElementById('subscriptionsSection').style.display = 'none';
+    }
+
+    window.addEventListener('click', function (e) {
+      if (!e.target.matches('.profile-icon')) {
+        const dropdown = document.getElementById('profileDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+          dropdown.classList.remove('show');
+        }
+      }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       const theme = localStorage.getItem('theme');
@@ -114,9 +211,7 @@
     });
   </script>
 
-  <!-- Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
-
-  <script src="main.js"></script>
+   <script src="main.js"></script>
 </body>
 </html>
