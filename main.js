@@ -432,19 +432,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-// --- On Page Load ---
-document.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-    document.getElementById('themeIcon').textContent = '☀️';
-  }
-
-
-
-  const user = JSON.parse(localStorage.getItem('loggedInUser'));
-  if (user) {
-    showChatSection();
-  } else {
-    toggleAuth('login');
-  }
-});
