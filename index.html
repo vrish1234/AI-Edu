@@ -6,16 +6,14 @@
   <title>AI-Edu</title>
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
+  
 </head>
 <body>
   <div class="card">
     <div class="header">
       <h2>🎓 AI-Edu</h2>
-      <div class="theme-toggle" onclick="toggleTheme()">
-        <span id="themeIcon">🌙</span>
-      </div>
+      <div class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></div>
 
-      <!-- Profile Dropdown -->
       <div id="profileSection" class="profile-container" style="display:none;">
         <span class="profile-icon" onclick="toggleDropdown()">👤</span>
         <div id="profileDropdown" class="dropdown">
@@ -26,13 +24,12 @@
       </div>
     </div>
 
-    <!-- User Info -->
     <div id="userInfo" style="display:none; text-align:right;">
       <p>👤 Logged in as: <strong id="loggedInName"></strong></p>
     </div>
 
-    <!-- Register Section -->
-    <div id="registerSection">
+    <!-- Register -->
+    <div id="registerSection" style="display:none;">
       <h3>Register</h3>
       <input id="regName" placeholder="Name">
       <input id="regEmail" placeholder="Email">
@@ -44,7 +41,7 @@
       <p><a href="#" onclick="toggleAuth('login')">Already registered? Login</a></p>
     </div>
 
-    <!-- Login Section -->
+    <!-- Login -->
     <div id="loginSection" style="display:none;">
       <h3>Login</h3>
       <input id="loginEmail" placeholder="Email">
@@ -56,17 +53,16 @@
       <p><a href="#" onclick="toggleAuth('register')">Don't have an account? Register</a></p>
     </div>
 
-    <!-- Chat Section -->
+    <!-- Chat -->
     <div id="chatSection" style="display:none;">
       <h3>Ask a Question</h3>
       <label for="question">Type your question:</label>
       <textarea id="question" rows="3" placeholder="Your question..."></textarea>
       <div class="input-options">
-        <button onclick="startVoiceInput()" title="Speak your question 🎤">🎤</button>
-        <button onclick="captureImage()" title="Upload photo of question 📷">📷</button>
+        <button onclick="startVoiceInput()">🎤</button>
+        <button onclick="captureImage()">📷</button>
       </div>
 
-      <!-- Updated Languages -->
       <select id="language">
         <option>English</option>
         <option>Hindi</option>
@@ -89,38 +85,28 @@
       <h4>Short Notes:</h4>
       <p id="shortNotesText"></p>
 
-      <!-- History Section -->
-      <div id="historySection">
-        <h4>Previous Questions:</h4>
-        <ul id="historyList"></ul>
-      </div>
+     <h4>Previous Questions:</h4>
+      <ul id="historyList"></ul>
     </div>
 
-    <!-- Subscriptions Section -->
-    <div id="subscriptionsSection" style="display:none; text-align:center; margin-top: 20px;">
+    <!-- Subscriptions -->
+    <div id="subscriptionsSection" style="display:none; text-align:center;">
       <h4>📦 Subscriptions</h4>
       <p>You currently have no active subscriptions.</p>
     </div>
 
-    <!-- About Section -->
     <div style="margin-top: 30px; font-size: 14px; text-align: center;">
       <hr style="margin: 20px 0;">
       <h3>About Edu Zone</h3>
-      <p> AI-Edu is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
-      <p>This project is developed by <strong>Vrishketu Ray</strong>.<br>Email: <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
+      <p>AI-Edu is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
+      <p>Project by <strong>Vrishketu Ray</strong> | <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
     </div>
   </div>
 
-  <canvas id="videoCanvas" style="display:none;"></canvas>
-
-  <!-- JavaScript -->
   <script>
-    let userHistory = [];
-
     function toggleTheme() {
       const isDark = document.body.classList.toggle('dark');
-      const icon = document.getElementById('themeIcon');
-      icon.textContent = isDark ? '☀️' : '🌙';
+      document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
@@ -139,7 +125,9 @@
       const name = document.getElementById('regName').value;
       const email = document.getElementById('regEmail').value;
       const password = document.getElementById('regPassword').value;
-      localStorage.setItem('user', JSON.stringify({ name, email }));
+
+      localStorage.setItem('user', JSON.stringify({ name, email, password }));
+      localStorage.setItem('history', JSON.stringify([])); // initialize history
       alert('Registered successfully. Please login.');
       toggleAuth('login');
     }
@@ -148,39 +136,64 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       const user = JSON.parse(localStorage.getItem('user'));
-      if (user && user.email === email) {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('chatSection').style.display = 'block';
-        document.getElementById('profileSection').style.display = 'inline-block';
-        document.getElementById('userInfo').style.display = 'block';
-        document.getElementById('loggedInName').innerText = user.name;
+
+      if (user && user.email === email && user.password === password) {
+        localStorage.setItem('isLoggedIn', 'true');
+        showChatUI(user);
       } else {
         alert('Invalid credentials!');
       }
     }
 
     function logoutUser() {
+      localStorage.removeItem('isLoggedIn');
       document.getElementById('chatSection').style.display = 'none';
       document.getElementById('subscriptionsSection').style.display = 'none';
       document.getElementById('profileSection').style.display = 'none';
       document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('historyList').innerHTML = '';
       toggleAuth('login');
     }
 
+    function showChatUI(user) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('registerSection').style.display = 'none';
+      document.getElementById('chatSection').style.display = 'block';
+      document.getElementById('profileSection').style.display = 'inline-block';
+      document.getElementById('userInfo').style.display = 'block';
+      document.getElementById('loggedInName').innerText = user.name;
+      loadHistory();
+    }
+
     function getAnswer() {
-      const question = document.getElementById('question').value;
+      const question = document.getElementById('question').value.trim();
+      if (!question) return;
+
       document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
       document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
 
-      userHistory.push(question);
+      let history = JSON.parse(localStorage.getItem('history')) || [];
+      history.push(question);
+      localStorage.setItem('history', JSON.stringify(history));
+
       const li = document.createElement('li');
       li.textContent = question;
       document.getElementById('historyList').appendChild(li);
     }
 
+    function loadHistory() {
+      const history = JSON.parse(localStorage.getItem('history')) || [];
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      history.forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        list.appendChild(li);
+      });
+    }
+
     function toggleDropdown() {
-      const dropdown = document.getElementById('profileDropdown');
-      dropdown.classList.toggle('show');
+      document.getElementById('profileDropdown').classList.toggle('show');
     }
 
     function showSubscriptions() {
@@ -189,8 +202,8 @@
     }
 
     function showHistory() {
-      document.getElementById('chatSection').style.display = 'block';
       document.getElementById('subscriptionsSection').style.display = 'none';
+      document.getElementById('chatSection').style.display = 'block';
     }
 
     window.addEventListener('click', function (e) {
@@ -208,10 +221,46 @@
         document.body.classList.add('dark');
         document.getElementById('themeIcon').textContent = '☀️';
       }
-    });
-  </script>
 
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (isLoggedIn && user) {
+        showChatUI(user);
+      } else {
+        toggleAuth('register');
+      }
+    });
+function getAnswer() {
+  const question = document.getElementById('question').value.trim();
+  if (!question) return;
+
+  document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
+  document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
+
+  let history = JSON.parse(localStorage.getItem('history')) || [];
+  history.push(question);
+  localStorage.setItem('history', JSON.stringify(history));
+
+  updateHistoryUI();
+}
+
+function updateHistoryUI() {
+  const history = JSON.parse(localStorage.getItem('history')) || [];
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  history.forEach(q => {
+    const li = document.createElement('li');
+    li.textContent = q;
+    list.appendChild(li);
+  });
+}
+
+function loadHistory() {
+  updateHistoryUI();
+}
+
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
    <script src="main.js"></script>
 </body>
-</html>
+</html> 
