@@ -83,11 +83,7 @@
 
       <button onclick="getAnswer()">Get Answer</button>
 
-      <h4>Answer:
-        <button id="answerSpeakBtn" onclick="toggleSpeechOutput()" aria-label="Toggle Speech" style="background:none; border:none; vertical-align: middle;">
-          <span id="speechIcon">▶️</span>
-        </button>
-      </h4>
+      <h4>Answer:</h4>
       <p id="responseText"></p>
 
       <h4>Short Notes:</h4>
@@ -231,7 +227,7 @@
     speechSynthesis.cancel();
     isSpeaking = false;
     isPaused = false;
-    document.getElementById("speechIcon").textContent = "▶️";
+    // removed speechIcon update because button removed
   }
 
   window.addEventListener('click', function (e) {
@@ -274,15 +270,15 @@
     });
   });
 
-  // ✅ SPEECH TOGGLE FUNCTION
+  // Speech toggle code removed from button, so toggleSpeechOutput() is no longer called
+  // You can delete below if you want, keeping in case you want speech functionality later
+
   let speechUtterance = null;
   let isSpeaking = false;
   let isPaused = false;
 
   function toggleSpeechOutput() {
     const responseText = document.getElementById("responseText").innerText;
-    const speechIcon = document.getElementById("speechIcon");
-
     if (!responseText.trim()) {
       alert("No response to speak.");
       return;
@@ -293,26 +289,22 @@
       speechSynthesis.speak(speechUtterance);
       isSpeaking = true;
       isPaused = false;
-      speechIcon.textContent = "⏸️";
 
       speechUtterance.onend = () => {
         isSpeaking = false;
         isPaused = false;
-        speechIcon.textContent = "▶️";
       };
     } else if (isPaused) {
       speechSynthesis.resume();
       isPaused = false;
-      speechIcon.textContent = "⏸️";
     } else {
       speechSynthesis.pause();
       isPaused = true;
-      speechIcon.textContent = "▶️";
     }
   }
 </script>
 
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
-  <script src="main.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
