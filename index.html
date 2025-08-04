@@ -6,14 +6,18 @@
   <title>AI-Edu</title>
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
-  
+  <style>
+    .dropdown { display: none; position: absolute; background: #f1f1f1; border: 1px solid #ccc; padding: 10px; }
+    .dropdown.show { display: block; }
+    .toggle-icon { cursor: pointer; margin-left: 5px; }
+    button { cursor: pointer; }
+  </style>
 </head>
 <body>
   <div class="card">
     <div class="header">
       <h2>🎓 AI-Edu</h2>
       <div class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></div>
-
       <div id="profileSection" class="profile-container" style="display:none;">
         <span class="profile-icon" onclick="toggleDropdown()">👤</span>
         <div id="profileDropdown" class="dropdown">
@@ -79,13 +83,17 @@
 
       <button onclick="getAnswer()">Get Answer</button>
 
-      <h4>Answer:</h4>
+      <h4>Answer:
+        <button id="answerSpeakBtn" onclick="toggleSpeechOutput()" aria-label="Toggle Speech" style="background:none; border:none; vertical-align: middle;">
+          <span id="speechIcon">▶️</span>
+        </button>
+      </h4>
       <p id="responseText"></p>
 
       <h4>Short Notes:</h4>
       <p id="shortNotesText"></p>
 
-     <h4>Previous Questions:</h4>
+      <h4>Previous Questions:</h4>
       <ul id="historyList"></ul>
     </div>
 
@@ -97,170 +105,214 @@
 
     <div style="margin-top: 30px; font-size: 14px; text-align: center;">
       <hr style="margin: 20px 0;">
-      <h3>About Edu Zone</h3>
+      <h3>About AI-Edu</h3>
       <p>AI-Edu is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
-      <p>Project by <strong>Vrishketu Ray</strong> | <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
+      <p>Developed by <strong>Vrishketu Ray</strong> | <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
     </div>
   </div>
 
   <script>
-    function toggleTheme() {
-      const isDark = document.body.classList.toggle('dark');
-      document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark');
+    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+
+  function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.textContent = input.type === 'text' ? '🙈' : '👁️';
+  }
+
+  function toggleAuth(section) {
+    document.getElementById('registerSection').style.display = section === 'register' ? 'block' : 'none';
+    document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
+  }
+
+  function registerUser() {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (!name || !email || !password) {
+      alert('Please fill all fields.');
+      return;
     }
 
-    function togglePassword(inputId, icon) {
-      const input = document.getElementById(inputId);
-      input.type = input.type === 'password' ? 'text' : 'password';
-      icon.textContent = input.type === 'text' ? '🙈' : '👁️';
+    localStorage.setItem('user', JSON.stringify({ name, email, password }));
+    localStorage.setItem('history', JSON.stringify([]));
+    alert('Registered successfully. Please login.');
+    toggleAuth('login');
+  }
+
+  function loginUser() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (user && user.email === email && user.password === password) {
+      localStorage.setItem('isLoggedIn', 'true');
+      showChatUI(user);
+    } else {
+      alert('Invalid credentials!');
     }
+  }
 
-    function toggleAuth(section) {
-      document.getElementById('registerSection').style.display = section === 'register' ? 'block' : 'none';
-      document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
-    }
+  function logoutUser() {
+    localStorage.removeItem('isLoggedIn');
+    document.getElementById('chatSection').style.display = 'none';
+    document.getElementById('subscriptionsSection').style.display = 'none';
+    document.getElementById('profileSection').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'none';
+    document.getElementById('historyList').innerHTML = '';
+    toggleAuth('login');
 
-    function registerUser() {
-      const name = document.getElementById('regName').value;
-      const email = document.getElementById('regEmail').value;
-      const password = document.getElementById('regPassword').value;
+    stopSpeech();
+  }
 
-      localStorage.setItem('user', JSON.stringify({ name, email, password }));
-      localStorage.setItem('history', JSON.stringify([])); // initialize history
-      alert('Registered successfully. Please login.');
-      toggleAuth('login');
-    }
+  function showChatUI(user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('registerSection').style.display = 'none';
+    document.getElementById('chatSection').style.display = 'block';
+    document.getElementById('profileSection').style.display = 'inline-block';
+    document.getElementById('userInfo').style.display = 'block';
+    document.getElementById('loggedInName').innerText = user.name;
+    loadHistory();
+  }
 
-    function loginUser() {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      const user = JSON.parse(localStorage.getItem('user'));
+  function getAnswer() {
+    const question = document.getElementById('question').value.trim();
+    if (!question) return;
 
-      if (user && user.email === email && user.password === password) {
-        localStorage.setItem('isLoggedIn', 'true');
-        showChatUI(user);
-      } else {
-        alert('Invalid credentials!');
-      }
-    }
+    stopSpeech();
 
-    function logoutUser() {
-      localStorage.removeItem('isLoggedIn');
-      document.getElementById('chatSection').style.display = 'none';
-      document.getElementById('subscriptionsSection').style.display = 'none';
-      document.getElementById('profileSection').style.display = 'none';
-      document.getElementById('userInfo').style.display = 'none';
-      document.getElementById('historyList').innerHTML = '';
-      toggleAuth('login');
-    }
+    document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
+    document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
 
-    function showChatUI(user) {
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('registerSection').style.display = 'none';
-      document.getElementById('chatSection').style.display = 'block';
-      document.getElementById('profileSection').style.display = 'inline-block';
-      document.getElementById('userInfo').style.display = 'block';
-      document.getElementById('loggedInName').innerText = user.name;
-      loadHistory();
-    }
+    let history = JSON.parse(localStorage.getItem('history')) || [];
+    history.push(question);
+    localStorage.setItem('history', JSON.stringify(history));
 
-    function getAnswer() {
-      const question = document.getElementById('question').value.trim();
-      if (!question) return;
+    updateHistoryUI();
+  }
 
-      document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
-      document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
-
-      let history = JSON.parse(localStorage.getItem('history')) || [];
-      history.push(question);
-      localStorage.setItem('history', JSON.stringify(history));
-
+  function updateHistoryUI() {
+    const history = JSON.parse(localStorage.getItem('history')) || [];
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+    history.forEach(q => {
       const li = document.createElement('li');
-      li.textContent = question;
-      document.getElementById('historyList').appendChild(li);
-    }
-
-    function loadHistory() {
-      const history = JSON.parse(localStorage.getItem('history')) || [];
-      const list = document.getElementById('historyList');
-      list.innerHTML = '';
-      history.forEach(q => {
-        const li = document.createElement('li');
-        li.textContent = q;
-        list.appendChild(li);
-      });
-    }
-
-    function toggleDropdown() {
-      document.getElementById('profileDropdown').classList.toggle('show');
-    }
-
-    function showSubscriptions() {
-      document.getElementById('subscriptionsSection').style.display = 'block';
-      document.getElementById('chatSection').style.display = 'none';
-    }
-
-    function showHistory() {
-      document.getElementById('subscriptionsSection').style.display = 'none';
-      document.getElementById('chatSection').style.display = 'block';
-    }
-
-    window.addEventListener('click', function (e) {
-      if (!e.target.matches('.profile-icon')) {
-        const dropdown = document.getElementById('profileDropdown');
-        if (dropdown && dropdown.classList.contains('show')) {
-          dropdown.classList.remove('show');
-        }
-      }
+      li.textContent = q;
+      list.appendChild(li);
     });
+  }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const theme = localStorage.getItem('theme');
-      if (theme === 'dark') {
-        document.body.classList.add('dark');
-        document.getElementById('themeIcon').textContent = '☀️';
+  function loadHistory() {
+    updateHistoryUI();
+  }
+
+  function toggleDropdown() {
+    document.getElementById('profileDropdown').classList.toggle('show');
+  }
+
+  function showSubscriptions() {
+    document.getElementById('subscriptionsSection').style.display = 'block';
+    document.getElementById('chatSection').style.display = 'none';
+    stopSpeech();
+  }
+
+  function showHistory() {
+    document.getElementById('subscriptionsSection').style.display = 'none';
+    document.getElementById('chatSection').style.display = 'block';
+    stopSpeech();
+  }
+
+  function stopSpeech() {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    isPaused = false;
+    document.getElementById("speechIcon").textContent = "▶️";
+  }
+
+  window.addEventListener('click', function (e) {
+    if (!e.target.matches('.profile-icon')) {
+      const dropdown = document.getElementById('profileDropdown');
+      if (dropdown && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
       }
-
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (isLoggedIn && user) {
-        showChatUI(user);
-      } else {
-        toggleAuth('register');
-      }
-    });
-function getAnswer() {
-  const question = document.getElementById('question').value.trim();
-  if (!question) return;
-
-  document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
-  document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
-
-  let history = JSON.parse(localStorage.getItem('history')) || [];
-  history.push(question);
-  localStorage.setItem('history', JSON.stringify(history));
-
-  updateHistoryUI();
-}
-
-function updateHistoryUI() {
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const list = document.getElementById('historyList');
-  list.innerHTML = '';
-  history.forEach(q => {
-    const li = document.createElement('li');
-    li.textContent = q;
-    list.appendChild(li);
+    }
   });
-}
 
-function loadHistory() {
-  updateHistoryUI();
-}
+  window.addEventListener('DOMContentLoaded', () => {
+    stopSpeech();
 
-  </script>
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+      document.getElementById('themeIcon').textContent = '☀️';
+    }
+
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (isLoggedIn && user) {
+      showChatUI(user);
+    } else {
+      toggleAuth('register');
+    }
+
+    // Add event listeners to stop speech when interacting with inputs/buttons
+    const questionInput = document.getElementById('question');
+    const voiceBtn = document.querySelector('button[onclick="startVoiceInput()"]');
+    const cameraBtn = document.querySelector('button[onclick="captureImage()"]');
+
+    [questionInput, voiceBtn, cameraBtn].forEach(elem => {
+      if (elem) {
+        elem.addEventListener('focus', stopSpeech);
+        elem.addEventListener('click', stopSpeech);
+        elem.addEventListener('touchstart', stopSpeech);
+      }
+    });
+  });
+
+  // ✅ SPEECH TOGGLE FUNCTION
+  let speechUtterance = null;
+  let isSpeaking = false;
+  let isPaused = false;
+
+  function toggleSpeechOutput() {
+    const responseText = document.getElementById("responseText").innerText;
+    const speechIcon = document.getElementById("speechIcon");
+
+    if (!responseText.trim()) {
+      alert("No response to speak.");
+      return;
+    }
+
+    if (!isSpeaking) {
+      speechUtterance = new SpeechSynthesisUtterance(responseText);
+      speechSynthesis.speak(speechUtterance);
+      isSpeaking = true;
+      isPaused = false;
+      speechIcon.textContent = "⏸️";
+
+      speechUtterance.onend = () => {
+        isSpeaking = false;
+        isPaused = false;
+        speechIcon.textContent = "▶️";
+      };
+    } else if (isPaused) {
+      speechSynthesis.resume();
+      isPaused = false;
+      speechIcon.textContent = "⏸️";
+    } else {
+      speechSynthesis.pause();
+      isPaused = true;
+      speechIcon.textContent = "▶️";
+    }
+  }
+</script>
+
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
-   <script src="main.js"></script>
+  <script src="main.js"></script>
 </body>
-</html> 
+</html>
