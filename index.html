@@ -88,6 +88,11 @@
 
       <h4>Short Notes:</h4>
       <p id="shortNotesText"></p>
+      <div id="diagramContainer"></div>
+
+      <h4>Full details:</h4>
+      <p id="pptPdfLinks"></p>
+
 
       <h4>Previous Questions:</h4>
       <ul id="historyList"></ul>
@@ -162,7 +167,6 @@
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('historyList').innerHTML = '';
     toggleAuth('login');
-
     stopSpeech();
   }
 
@@ -179,16 +183,12 @@
   function getAnswer() {
     const question = document.getElementById('question').value.trim();
     if (!question) return;
-
     stopSpeech();
-
     document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
     document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
-
     let history = JSON.parse(localStorage.getItem('history')) || [];
     history.push(question);
     localStorage.setItem('history', JSON.stringify(history));
-
     updateHistoryUI();
   }
 
@@ -224,11 +224,15 @@
   }
 
   function stopSpeech() {
-    speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
     isSpeaking = false;
     isPaused = false;
-    // removed speechIcon update because button removed
   }
+
+  window.addEventListener('beforeunload', stopSpeech);
+  window.addEventListener('load', stopSpeech);
 
   window.addEventListener('click', function (e) {
     if (!e.target.matches('.profile-icon')) {
@@ -239,15 +243,30 @@
     }
   });
 
+  function attachStopSpeechEvents() {
+    const stopElements = [
+      document.getElementById('question'),
+      document.querySelector('button[onclick="startVoiceInput()"]'),
+      document.querySelector('button[onclick="captureImage()"]'),
+      document.getElementById('language')
+    ];
+
+    stopElements.forEach(elem => {
+      if (elem) {
+        ['focus', 'click', 'touchstart', 'change', 'input'].forEach(eventName => {
+          elem.addEventListener(eventName, stopSpeech);
+        });
+      }
+    });
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
     stopSpeech();
-
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
       document.body.classList.add('dark');
       document.getElementById('themeIcon').textContent = '☀️';
     }
-
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const user = JSON.parse(localStorage.getItem('user'));
     if (isLoggedIn && user) {
@@ -255,23 +274,8 @@
     } else {
       toggleAuth('register');
     }
-
-    // Add event listeners to stop speech when interacting with inputs/buttons
-    const questionInput = document.getElementById('question');
-    const voiceBtn = document.querySelector('button[onclick="startVoiceInput()"]');
-    const cameraBtn = document.querySelector('button[onclick="captureImage()"]');
-
-    [questionInput, voiceBtn, cameraBtn].forEach(elem => {
-      if (elem) {
-        elem.addEventListener('focus', stopSpeech);
-        elem.addEventListener('click', stopSpeech);
-        elem.addEventListener('touchstart', stopSpeech);
-      }
-    });
+    attachStopSpeechEvents();
   });
-
-  // Speech toggle code removed from button, so toggleSpeechOutput() is no longer called
-  // You can delete below if you want, keeping in case you want speech functionality later
 
   let speechUtterance = null;
   let isSpeaking = false;
@@ -283,13 +287,11 @@
       alert("No response to speak.");
       return;
     }
-
     if (!isSpeaking) {
       speechUtterance = new SpeechSynthesisUtterance(responseText);
       speechSynthesis.speak(speechUtterance);
       isSpeaking = true;
       isPaused = false;
-
       speechUtterance.onend = () => {
         isSpeaking = false;
         isPaused = false;
@@ -303,6 +305,7 @@
     }
   }
 </script>
+
 
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
   <script src="main.js"></script>
