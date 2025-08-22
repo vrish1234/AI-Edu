@@ -1,36 +1,45 @@
+// ==================== Config / Keys ====================
 const geminiAPIKey = "AIzaSyBhS1Ispvv6A4P-TvqK_X8srNuI5ZSlLH0";
 
 // === Google Search API Keys ===
-const GOOGLE_API_KEY = "AIzaSyDZ8nqex-SO45WrsSk8ZQG7-wowmKVTP6U"; 
-const SEARCH_ENGINE_ID = "b222fc6691768427a"; 
+const GOOGLE_API_KEY = "AIzaSyDZ8nqex-SO45WrsSk8ZQG7-wowmKVTP6U";
+const SEARCH_ENGINE_ID = "b222fc6691768427a";
 
-// --- Gemini Answer Fetching ---
+// === YouTube API Key ===
+const YOUTUBE_API_KEY = "AIzaSyArUsfSQvLUZf8wC8MbkW_zvtIP2KbEdB0";
+
+// === Loader HTML ===
+const loaderHTML = `<div class="loader"></div>`;
+
+// ==================== Gemini / Answer Fetching ====================
 async function fetchAnswerFromGemini(question, language) {
   const prompt = `Answer the following question strictly in ${language}:\n${question}`;
   const shortPrompt = `Now, summarize the above answer into 3-5 short bullet points using ${language} only.`;
 
   try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-goog-api-key": geminiAPIKey },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-    });
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-goog-api-key": geminiAPIKey },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      }
+    );
 
-    if (response.status === 429) throw new Error("Too many requests. Try again later.");
-    if (!response.ok) throw new Error(`API Error: ${response.status} - ${await response.text()}`);
-
+    if (!response.ok) throw new Error(`Gemini API Error: ${response.status}`);
     const data = await response.json();
     const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Answer not available.";
 
-    const summaryResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-goog-api-key": geminiAPIKey },
-      body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] }),
-    });
+    const summaryResponse = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-goog-api-key": geminiAPIKey },
+        body: JSON.stringify({ contents: [{ parts: [{ text: `${prompt}\n${answer}\n${shortPrompt}` }] }] }),
+      }
+    );
 
-    if (summaryResponse.status === 429) throw new Error("Too many requests. Try again later.");
-    if (!summaryResponse.ok) throw new Error(`API Error: ${summaryResponse.status} - ${await summaryResponse.text()}`);
-
+    if (!summaryResponse.ok) throw new Error(`Gemini API Error: ${summaryResponse.status}`);
     const summaryData = await summaryResponse.json();
     const shortNotes = summaryData.candidates?.[0]?.content?.parts?.[0]?.text || "Short notes not available.";
 
@@ -40,47 +49,55 @@ async function fetchAnswerFromGemini(question, language) {
   }
 }
 
-// --- Diagram Request Detection ---
+// ==================== Helpers: diagram, ppt/pdf ====================
 function needsDiagram(question) {
   const keywords = ["diagram", "chart", "graph", "flowchart", "schematic", "drawing", "block diagram"];
   return keywords.some(word => question.toLowerCase().includes(word));
 }
 
-// --- Fetch Real Diagram Image ---
 async function fetchDiagramImage(query) {
-  const searchQuery = `${query} diagram`;
-  const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(searchQuery)}&searchType=image&num=1&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`;
-
+  const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query + " diagram")}&searchType=image&num=1&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`;
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Google Image API Error: ${res.status}`);
     const data = await res.json();
-    if (!data.items || data.items.length === 0) return null;
-    return data.items[0].link;
-  } catch (err) {
-    console.error("Diagram Fetch Error:", err);
+    return data.items?.[0]?.link || null;
+  } catch {
     return null;
   }
 }
 
-// --- Fetch PPT/PDF Links ---
 async function fetchPptPdfLinks(query) {
-  const searchQuery = `${query} (filetype:ppt OR filetype:pdf)`;
-  const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(searchQuery)}&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`;
-
+  const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query + " (filetype:ppt OR filetype:pdf)")}&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`;
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Google API Error: ${res.status}`);
     const data = await res.json();
-    if (!data.items || data.items.length === 0) return [];
-    return data.items.slice(0, 3).map(item => ({ title: item.title, link: item.link }));
-  } catch (err) {
-    console.error("PPT/PDF Fetch Error:", err);
+    return data.items?.slice(0, 3).map(item => ({ title: item.title, link: item.link })) || [];
+  } catch {
     return [];
   }
 }
 
-// --- Language Codes ---
+// ==================== Fetch YouTube Video with Language Preference ====================
+async function fetchYouTubeVideo(query, language) {
+  const langQuery = `${query} ${language} explanation`;
+  const fallbackQuery = `${query} Hindi explanation`;
+
+  async function searchYouTube(searchText) {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=medium&maxResults=1&q=${encodeURIComponent(searchText)}&key=${YOUTUBE_API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.items?.[0]?.id?.videoId || null;
+  }
+
+  let videoId = await searchYouTube(langQuery);
+  if (!videoId && language !== "Hindi") {
+    videoId = await searchYouTube(fallbackQuery);
+  }
+  return videoId;
+}
+
+// ==================== Language codes for TTS ====================
 function getLangCode(lang) {
   const codes = {
     English: 'en-US',
@@ -98,108 +115,99 @@ function getLangCode(lang) {
   return codes[lang] || 'en-US';
 }
 
-// --- Main Answer Function ---
+// ==================== YouTube IFrame API Integration ====================
+let ytPlayer = null;
+let pendingVideoId = null;
+let ytApiLoaded = false;
+
+function loadYouTubeIframeAPI() {
+  if (ytApiLoaded) return;
+  ytApiLoaded = true;
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(tag);
+  window.onYouTubeIframeAPIReady = () => { if (pendingVideoId) createYouTubePlayer(pendingVideoId); };
+}
+
+function createYouTubePlayer(videoId) {
+  if (ytPlayer && ytPlayer.destroy) ytPlayer.destroy();
+  ytPlayer = new YT.Player("ytplayer", {
+    height: "315",
+    width: "560",
+    videoId,
+    playerVars: { rel: 0, modestbranding: 1, controls: 1 },
+    events: { onStateChange: onYtPlayerStateChange }
+  });
+}
+
+function onYtPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.PLAYING) speechSynthesis.cancel();
+}
+
+// ==================== Main ====================
 async function getAnswer() {
-  const question = document.getElementById('question').value;
-  const language = document.getElementById('language').value;
+  const question = document.getElementById('question')?.value || "";
+  const language = document.getElementById('language')?.value || "English";
   const responseText = document.getElementById('responseText');
   const shortNotesText = document.getElementById('shortNotesText');
   const pptPdfContainer = document.getElementById('pptPdfLinks');
   const diagramContainer = document.getElementById('diagramContainer');
+  const youtubeContainer = document.getElementById('youtubeContainer');
 
-  if (!question) return alert("Please enter your question.");
+  if (!question.trim()) return alert("Please enter your question.");
 
-  responseText.innerText = "Loading answer...";
+  // === Loader show ===
+  responseText.innerHTML = loaderHTML;
   shortNotesText.innerText = "";
   pptPdfContainer.innerHTML = "";
   diagramContainer.innerHTML = "";
+  youtubeContainer.innerHTML = "";
 
   try {
     const { answer, shortNotes } = await fetchAnswerFromGemini(question, language);
+
+    // === Loader remove and show content ===
     responseText.innerText = answer;
     shortNotesText.innerText = shortNotes;
 
-    // अगर diagram चाहिए
     if (needsDiagram(question)) {
-      const diagramURL = await fetchDiagramImage(question);
-      if (diagramURL) {
+      const imgURL = await fetchDiagramImage(question);
+      if (imgURL) {
         const img = document.createElement("img");
-        img.src = diagramURL;
-        img.alt = "Diagram";
+        img.src = imgURL;
         img.style.maxWidth = "400px";
-        img.style.display = "block";
-        img.style.marginTop = "10px";
         diagramContainer.appendChild(img);
       }
     }
 
-    // Text-to-speech
+    // TTS
     speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(answer);
     utter.lang = getLangCode(language);
     speechSynthesis.speak(utter);
 
-    showTextAsVideo(answer);
-
-    // PPT/PDF links
+    // PPT/PDF
     const links = await fetchPptPdfLinks(question);
-    if (links.length > 0) {
-      pptPdfContainer.innerHTML = "<h4>📂 Related PPT/PDF:</h4>";
-      links.forEach(linkObj => {
-        const a = document.createElement("a");
-        a.href = linkObj.link;
-        a.target = "_blank";
-        a.textContent = `🔗 ${linkObj.title}`;
-        pptPdfContainer.appendChild(a);
-        pptPdfContainer.appendChild(document.createElement("br"));
-      });
-    } else {
-      pptPdfContainer.innerHTML = "<p>No PPT/PDF found.</p>";
-    }
+    pptPdfContainer.innerHTML = links.length
+      ? "<h4>📂 Related PPT/PDF:</h4>" + links.map(l => `<a href="${l.link}" target="_blank">🔗 ${l.title}</a><br>`).join("")
+      : "<p>No PPT/PDF found.</p>";
 
-  } catch (error) {
+    // YouTube Video
+    const videoId = await fetchYouTubeVideo(question, language);
+    if (videoId) {
+      youtubeContainer.innerHTML = `<h4>🎥 Related YouTube Video:</h4><div id="ytplayer"></div>`;
+      pendingVideoId = videoId;
+      loadYouTubeIframeAPI();
+      if (window.YT && window.YT.Player) createYouTubePlayer(videoId);
+    } else {
+      youtubeContainer.innerHTML = "<p>No suitable YouTube video found.</p>";
+    }
+  } catch (err) {
     responseText.innerText = "Error fetching answer.";
-    console.error("Error:", error.message);
+    console.error(err);
   }
 }
 
-// --- Video Display ---
-function showTextAsVideo(text) {
-  const canvas = document.getElementById("videoCanvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  canvas.style.display = "block";
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.fillRect(0, 220, canvas.width, 80);
-  ctx.font = "20px Arial";
-  ctx.fillStyle = "#fff";
-  ctx.textAlign = "center";
-
-  const lines = wrapText(ctx, text, 550);
-  lines.forEach((line, i) => {
-    ctx.fillText(line, canvas.width / 2, 250 + i * 22);
-  });
-}
-
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let line = "";
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + " ";
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxWidth && i > 0) {
-      lines.push(line);
-      line = words[i] + " ";
-    } else {
-      line = testLine;
-    }
-  }
-  lines.push(line);
-  return lines;
-}
 
 // --- Voice Input ---
 function startVoiceInput() {
