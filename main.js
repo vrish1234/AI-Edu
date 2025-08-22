@@ -1,4 +1,4 @@
-const geminiAPIKey = "AIzaSyD4jAqQ6HP6TPyaZKO7CK-R27ULyrgx0ms";
+const geminiAPIKey = "AIzaSyBhS1Ispvv6A4P-TvqK_X8srNuI5ZSlLH0";
 
 // === Google Search API Keys ===
 const GOOGLE_API_KEY = "AIzaSyDZ8nqex-SO45WrsSk8ZQG7-wowmKVTP6U"; 
