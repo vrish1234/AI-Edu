@@ -231,3 +231,16 @@ body.dark #language {
   .msg { max-width: 90%; font-size: 13.5px; }
   #inputBar { flex-direction: column; align-items: stretch; gap: 8px; }
 }
+/* PDF links */
+.chat-bubble a {
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+/* Responsive YouTube container */
+.yt-container {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16/9;
+}
+
