@@ -1,8 +1,8 @@
 // ================== API KEYS ==================
 const geminiAPIKey = "AIzaSyBhS1Ispvv6A4P-TvqK_X8srNuI5ZSlLH0";
 // === Google Search API Keys ===
-const GOOGLE_API_KEY = "AIzaSyDZ8nqex-SO45WrsSk8ZQG7-wowmKVTP6U";
-const SEARCH_ENGINE_ID = "b222fc6691768427a";
+const GOOGLE_API_KEY = "AIzaSyDf6fjW4nMrdM3V1fvM8sO2kS8gbvrEKBQ";
+const SEARCH_ENGINE_ID = "66e5361e4c83040a8";
 const YOUTUBE_API_KEY = "AIzaSyArUsfSQvLUZf8wC8MbkW_zvtIP2KbEdB0";
 
 // ================== CHAT STATE ==================
