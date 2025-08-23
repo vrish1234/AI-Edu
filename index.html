@@ -3,71 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI-Edu</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>AI-Edura</title>
+  <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
-  <style>
-    .dropdown { display: none; position: absolute; background: #f1f1f1; border: 1px solid #ccc; padding: 10px; }
-    .dropdown.show { display: block; }
-    .toggle-icon { cursor: pointer; margin-left: 5px; }
-    button { cursor: pointer; }
-  </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header">
-      <h2>🎓 AI-Edu</h2>
-      <div class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></div>
-      <div id="profileSection" class="profile-container" style="display:none;">
-        <span class="profile-icon" onclick="toggleDropdown()">👤</span>
-        <div id="profileDropdown" class="dropdown">
-          <a href="#" onclick="showHistory()">📜 History</a>
-          <a href="#" onclick="showSubscriptions()">💼 Subscriptions</a>
-          <a href="#" onclick="logoutUser()">🚪 Logout</a>
-        </div>
-      </div>
+
+<!-- Login/Register -->
+<div class="container" id="authContainer">
+  <div class="card" id="loginCard">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="loginUser()">Login</button>
+    <p>Don't have an account? <a onclick="showRegister()">Register</a></p>
+  </div>
+  <div class="card" id="registerCard" style="display:none;">
+    <h2>Register</h2>
+    <input type="text" id="regName" placeholder="Name">
+    <input type="email" id="regEmail" placeholder="Email">
+    <input type="password" id="regPassword" placeholder="Password">
+    <button onclick="registerUser()">Register</button>
+    <p>Already have an account? <a onclick="showLogin()">Login</a></p>
+  </div>
+</div>
+
+<!-- Chat Interface -->
+<div id="chatInterface" style="display:none;">
+  <div class="header">
+    <h2>🎓AI-Edura </h2>
+    <div>
+      <span id="themeIcon" class="theme-toggle" onclick="toggleTheme()">🌙</span>
+      <button onclick="logoutUser()" class="logoutBtn">Logout</button>
     </div>
+  </div>
 
-    <div id="userInfo" style="display:none; text-align:right;">
-      <p>👤 Logged in as: <strong id="loggedInName"></strong></p>
-    </div>
+  <div id="chatScroll" class="chat-box"></div>
+  </div>
+  </div>
 
-    <!-- Register -->
-    <div id="registerSection" style="display:none;">
-      <h3>Register</h3>
-      <input id="regName" placeholder="Name">
-      <input id="regEmail" placeholder="Email">
-      <div style="position: relative;">
-        <input id="regPassword" type="password" placeholder="Password">
-        <span class="toggle-icon" onclick="togglePassword('regPassword', this)">👁️</span>
-      </div>
-      <button onclick="registerUser()">Register</button>
-      <p><a href="#" onclick="toggleAuth('login')">Already registered? Login</a></p>
-    </div>
-
-    <!-- Login -->
-    <div id="loginSection" style="display:none;">
-      <h3>Login</h3>
-      <input id="loginEmail" placeholder="Email">
-      <div style="position: relative;">
-        <input id="loginPassword" type="password" placeholder="Password">
-        <span class="toggle-icon" onclick="togglePassword('loginPassword', this)">👁️</span>
-      </div>
-      <button onclick="loginUser()">Login</button>
-      <p><a href="#" onclick="toggleAuth('register')">Don't have an account? Register</a></p>
-    </div>
-
-    <!-- Chat -->
-    <div id="chatSection" style="display:none;">
-      <h3>Ask a Question</h3>
-      <label for="question">Type your question:</label>
-      <textarea id="question" rows="3" placeholder="Your question..."></textarea>
-      <div class="input-options">
-        <button onclick="startVoiceInput()">🎤</button>
-        <button onclick="captureImage()">📷</button>
-      </div>
-
-      <select id="language">
+  <div id="inputBar">
+    <select id="language" onchange="selectLanguage(this.value)">
         <option>English</option>
         <option>Hindi</option>
         <option>Bhojpuri</option>
@@ -79,237 +55,84 @@
         <option>Punjabi</option>
         <option>Rajasthani</option>
         <option>Gujarati</option>
-      </select>
+    </select>
 
-      <button onclick="getAnswer()">Get Answer</button>
+    <textarea id="question" placeholder="Type your question..."></textarea>
 
-      <h4>Answer:</h4>
-      <p id="responseText"></p>
-
-      <h4>Short Notes:</h4>
-      <p id="shortNotesText"></p>
-      <div id="diagramContainer"></div>
-      <div id="youtubeContainer"></div>
-
-  
-      <h4>Full details:</h4>
-      <p id="pptPdfLinks"></p>
-
-
-      <h4>Previous Questions:</h4>
-      <ul id="historyList"></ul>
+    <div class="input-icons">
+      <button onclick="startVoiceInput()" title="Voice Input">🎤</button>
+      <button onclick="captureImage()" title="Upload Image">📷</button>
     </div>
 
-    <!-- Subscriptions -->
-    <div id="subscriptionsSection" style="display:none; text-align:center;">
-      <h4>📦 Subscriptions</h4>
-      <p>You currently have no active subscriptions.</p>
-    </div>
-
-    <div style="margin-top: 30px; font-size: 14px; text-align: center;">
-      <hr style="margin: 20px 0;">
-      <h3>About AI-Edu</h3>
-      <p>AI-Edu is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
+    <button id="sendBtn" onclick="sendQuestion()">➤</button>
+  </div>
+  <h3>About AI-Edura</h3>
+      <p>AI-Edura is an AI-powered educational platform where students can ask questions via text, voice, or image. The system provides instant answers, short notes for revision, and audio/video explanations in multiple Indian languages.</p>
       <p>Developed by <strong>Vrishketu Ray</strong> | <a href="mailto:vrishketuray@gmail.com">vrishketuray@gmail.com</a></p>
     </div>
-  </div>
+</div>
 
-  <script>
-  function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark');
-    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+<!-- Login/Register Script -->
+<script>
+  function showRegister() {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('registerCard').style.display = 'block';
   }
-
-  function togglePassword(inputId, icon) {
-    const input = document.getElementById(inputId);
-    input.type = input.type === 'password' ? 'text' : 'password';
-    icon.textContent = input.type === 'text' ? '🙈' : '👁️';
+  function showLogin() {
+    document.getElementById('registerCard').style.display = 'none';
+    document.getElementById('loginCard').style.display = 'block';
   }
-
-  function toggleAuth(section) {
-    document.getElementById('registerSection').style.display = section === 'register' ? 'block' : 'none';
-    document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
-  }
-
   function registerUser() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
-    const password = document.getElementById('regPassword').value;
-
+    const password = document.getElementById('regPassword').value.trim();
     if (!name || !email || !password) {
-      alert('Please fill all fields.');
+      alert("Please fill all fields.");
       return;
     }
-
     localStorage.setItem('user', JSON.stringify({ name, email, password }));
-    localStorage.setItem('history', JSON.stringify([]));
-    alert('Registered successfully. Please login.');
-    toggleAuth('login');
+    alert("Registration successful. Please login.");
+    showLogin();
   }
-
   function loginUser() {
     const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
+    const password = document.getElementById('loginPassword').value.trim();
     const user = JSON.parse(localStorage.getItem('user'));
-
     if (user && user.email === email && user.password === password) {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('chatInterface').style.display = 'block';
       localStorage.setItem('isLoggedIn', 'true');
-      showChatUI(user);
     } else {
-      alert('Invalid credentials!');
+      alert("Invalid email or password.");
     }
   }
-
   function logoutUser() {
     localStorage.removeItem('isLoggedIn');
-    document.getElementById('chatSection').style.display = 'none';
-    document.getElementById('subscriptionsSection').style.display = 'none';
-    document.getElementById('profileSection').style.display = 'none';
-    document.getElementById('userInfo').style.display = 'none';
-    document.getElementById('historyList').innerHTML = '';
-    toggleAuth('login');
-    stopSpeech();
+    document.getElementById('authContainer').style.display = 'block';
+    document.getElementById('chatInterface').style.display = 'none';
   }
-
-  function showChatUI(user) {
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('registerSection').style.display = 'none';
-    document.getElementById('chatSection').style.display = 'block';
-    document.getElementById('profileSection').style.display = 'inline-block';
-    document.getElementById('userInfo').style.display = 'block';
-    document.getElementById('loggedInName').innerText = user.name;
-    loadHistory();
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
   }
-
-  function getAnswer() {
-    const question = document.getElementById('question').value.trim();
-    if (!question) return;
-    stopSpeech();
-    document.getElementById('responseText').innerText = "This is a dummy AI answer for: " + question;
-    document.getElementById('shortNotesText').innerText = "Short notes related to: " + question;
-    let history = JSON.parse(localStorage.getItem('history')) || [];
-    history.push(question);
-    localStorage.setItem('history', JSON.stringify(history));
-    updateHistoryUI();
-  }
-
-  function updateHistoryUI() {
-    const history = JSON.parse(localStorage.getItem('history')) || [];
-    const list = document.getElementById('historyList');
-    list.innerHTML = '';
-    history.forEach(q => {
-      const li = document.createElement('li');
-      li.textContent = q;
-      list.appendChild(li);
-    });
-  }
-
-  function loadHistory() {
-    updateHistoryUI();
-  }
-
-  function toggleDropdown() {
-    document.getElementById('profileDropdown').classList.toggle('show');
-  }
-
-  function showSubscriptions() {
-    document.getElementById('subscriptionsSection').style.display = 'block';
-    document.getElementById('chatSection').style.display = 'none';
-    stopSpeech();
-  }
-
-  function showHistory() {
-    document.getElementById('subscriptionsSection').style.display = 'none';
-    document.getElementById('chatSection').style.display = 'block';
-    stopSpeech();
-  }
-
-  function stopSpeech() {
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
-    isSpeaking = false;
-    isPaused = false;
-  }
-
-  window.addEventListener('beforeunload', stopSpeech);
-  window.addEventListener('load', stopSpeech);
-
-  window.addEventListener('click', function (e) {
-    if (!e.target.matches('.profile-icon')) {
-      const dropdown = document.getElementById('profileDropdown');
-      if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      }
-    }
-  });
-
-  function attachStopSpeechEvents() {
-    const stopElements = [
-      document.getElementById('question'),
-      document.querySelector('button[onclick="startVoiceInput()"]'),
-      document.querySelector('button[onclick="captureImage()"]'),
-      document.getElementById('language')
-    ];
-
-    stopElements.forEach(elem => {
-      if (elem) {
-        ['focus', 'click', 'touchstart', 'change', 'input'].forEach(eventName => {
-          elem.addEventListener(eventName, stopSpeech);
-        });
-      }
-    });
-  }
-
   window.addEventListener('DOMContentLoaded', () => {
-    stopSpeech();
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('chatInterface').style.display = 'block';
+    }
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
       document.body.classList.add('dark');
       document.getElementById('themeIcon').textContent = '☀️';
     }
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (isLoggedIn && user) {
-      showChatUI(user);
-    } else {
-      toggleAuth('register');
-    }
-    attachStopSpeechEvents();
   });
-
-  let speechUtterance = null;
-  let isSpeaking = false;
-  let isPaused = false;
-
-  function toggleSpeechOutput() {
-    const responseText = document.getElementById("responseText").innerText;
-    if (!responseText.trim()) {
-      alert("No response to speak.");
-      return;
-    }
-    if (!isSpeaking) {
-      speechUtterance = new SpeechSynthesisUtterance(responseText);
-      speechSynthesis.speak(speechUtterance);
-      isSpeaking = true;
-      isPaused = false;
-      speechUtterance.onend = () => {
-        isSpeaking = false;
-        isPaused = false;
-      };
-    } else if (isPaused) {
-      speechSynthesis.resume();
-      isPaused = false;
-    } else {
-      speechSynthesis.pause();
-      isPaused = true;
-    }
-  }
 </script>
 
-<script async src="https://cse.google.com/cse.js?cx=a00f0583a70264e08"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
-  <script src="main.js"></script>
+<!-- OCR + Chat Logic -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2/dist/tesseract.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
