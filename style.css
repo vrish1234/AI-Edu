@@ -9,8 +9,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s, color 0.3s;
-  padding-top: 90px;   /* 👈 h1 ke liye space */
+  transition: background 0.3s, color 0.3s;/* 👈 h1 ke liye space */
 }
 body.dark {
   background: #121212;
