@@ -8,7 +8,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   transition: background 0.3s, color 0.3s;
+  padding-top: 90px;   /* 👈 h1 ke liye space */
 }
 body.dark {
   background: #121212;
@@ -17,13 +19,19 @@ body.dark {
 
 /* ---------- TITLE ---------- */
 h1 {
-  margin: 30px 0 20px 0;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
   font-size: 2.4rem;
   font-weight: 700;
   text-align: center;
   background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fcb045);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
   text-shadow: 0 3px 10px rgba(0,0,0,0.25);
 }
 
@@ -281,4 +289,3 @@ body.dark #language {
   #inputBar { flex-direction: column; align-items: stretch; gap: 8px; }
   h1 { font-size: 1.5rem; margin-bottom: 15px; }
 }
-
