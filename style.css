@@ -6,9 +6,8 @@ body {
   color: #222;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
   transition: background 0.3s, color 0.3s;
 }
 body.dark {
@@ -18,16 +17,14 @@ body.dark {
 
 /* ---------- TITLE ---------- */
 h1 {
-  color: #fff;
-  margin-bottom: 25px;
-  font-size: 2.2rem;
+  margin: 30px 0 20px 0;
+  font-size: 2.4rem;
   font-weight: 700;
   text-align: center;
-  letter-spacing: 1px;
   background: linear-gradient(90deg, #ff9a9e, #fad0c4, #fcb045);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 3px 10px rgba(0,0,0,0.25);
 }
 
 /* ---------- LOGIN / REGISTER ---------- */
@@ -35,12 +32,13 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  flex: 1;
+  width: 100%;
 }
 .card {
-  width: 320px;
-  padding: 28px 24px;
-  border-radius: 16px;
+  width: 340px;
+  padding: 30px 26px;
+  border-radius: 18px;
   background: #fff;
   box-shadow: 0 10px 28px rgba(0,0,0,0.2);
   text-align: center;
@@ -52,7 +50,7 @@ body.dark .card {
   box-shadow: 0 6px 20px rgba(0,0,0,0.45);
 }
 .card h2 {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   color: #4e8cff;
   font-weight: 700;
   font-size: 22px;
@@ -60,10 +58,10 @@ body.dark .card {
 .card input {
   width: 100%;
   padding: 12px 14px;
-  margin: 8px 0;
+  margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 15px;
   outline: none;
   transition: border 0.2s, box-shadow 0.2s;
 }
@@ -74,9 +72,9 @@ body.dark .card {
 .card button {
   width: 100%;
   padding: 12px;
-  margin-top: 14px;
+  margin-top: 15px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #4e8cff, #346dff);
   color: #fff;
   font-weight: 600;
@@ -85,16 +83,15 @@ body.dark .card {
 }
 .card button:hover {
   background: linear-gradient(135deg, #346dff, #1f52e0);
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px) scale(1.04);
 }
 .card p {
-  margin-top: 14px;
+  margin-top: 15px;
   font-size: 14px;
 }
 .card p a {
   color: #4e8cff;
   font-weight: 600;
-  cursor: pointer;
   text-decoration: none;
 }
 .card p a:hover {
@@ -224,7 +221,7 @@ body.dark #language {
 }
 #question {
   flex: 1;
-  min-height: 34px;
+  min-height: 36px;
   max-height: 120px;
   padding: 10px 12px;
   border-radius: 10px;
@@ -276,12 +273,12 @@ body.dark #language {
 @media (max-width: 768px) {
   #chatScroll { height: 60vh; }
   .msg { max-width: 85%; font-size: 14px; }
-  h1 { font-size: 1.6rem; }
+  h1 { font-size: 1.8rem; }
 }
 @media (max-width: 480px) {
   .header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .msg { max-width: 90%; font-size: 13.5px; }
   #inputBar { flex-direction: column; align-items: stretch; gap: 8px; }
-  h1 { font-size: 1.4rem; margin-bottom: 15px; }
+  h1 { font-size: 1.5rem; margin-bottom: 15px; }
 }
 
