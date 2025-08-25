@@ -7,9 +7,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s, color 0.3s;/* 👈 h1 ke liye space */
+  transition: background 0.3s, color 0.3s;
 }
 body.dark {
   background: #121212;
@@ -131,9 +129,18 @@ body.dark .header {
   font-size: 20px;
 }
 
+/* ---------- CHAT LAYOUT ---------- */
+.chatContainer {
+  flex: 1; /* 👈 takes all remaining height */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* ---------- CHAT BOX ---------- */
 #chatScroll {
-  height: 65vh;
+  flex: 1; /* 👈 dynamic height */
+  width: calc(100% - 30px);
   overflow-y: auto;
   padding: 18px;
   margin: 15px;
@@ -141,6 +148,8 @@ body.dark .header {
   border-radius: 18px;
   box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
 }
 body.dark #chatScroll {
   background: #181818;
@@ -260,7 +269,6 @@ body.dark #language {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  #chatScroll { height: 60vh; }
   .msg { max-width: 85%; font-size: 14px; }
   h1 { font-size: 1.8rem; }
 }
@@ -270,3 +278,4 @@ body.dark #language {
   #inputBar { flex-direction: column; align-items: stretch; gap: 8px; }
   h1 { font-size: 1.5rem; margin-bottom: 15px; }
 }
+
