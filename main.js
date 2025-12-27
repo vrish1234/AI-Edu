@@ -1,5 +1,5 @@
 // ================== API KEYS ==================
-const geminiAPIKey = "AIzaSyBRROyhUOqa5RcJDAZ7zI3NmYDvmmy6kyM";
+const geminiAPIKey = "AIzaSyBAgbP2F9mpphZrXc3qbuVIhwUp2sqz0g0";
 // === Google Search API Keys ===
 const GOOGLE_API_KEY = "AIzaSyDf6fjW4nMrdM3V1fvM8sO2kS8gbvrEKBQ";
 const SEARCH_ENGINE_ID = "66e5361e4c83040a8";
